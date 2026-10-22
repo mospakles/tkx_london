@@ -1,0 +1,142 @@
+{%- liquid
+  assign menu = linklists[section.settings.menu]
+  assign secondary = linklists[section.settings.secondary_menu]
+-%}
+{%- capture logo -%}
+  <a class="header__logo" href="{{ routes.root_url }}">
+    {%- if settings.logo != blank -%}
+      {%- liquid
+        assign logo_h = settings.logo_width | divided_by: settings.logo.aspect_ratio | round
+        assign logo_style = 'width: min(42vw, ' | append: settings.logo_width | append: 'px); height: auto;'
+      -%}
+      {{ settings.logo | image_url: width: 520 | image_tag: width: settings.logo_width, height: logo_h, style: logo_style, alt: shop.name, loading: 'eager', fetchpriority: 'high' }}
+    {%- else -%}
+      {%- comment -%} Temporary text wordmark until the approved artwork is uploaded. {%- endcomment -%}
+      <span class="wordmark">TKX<span>London</span></span>
+    {%- endif -%}
+  </a>
+{%- endcapture -%}
+
+{%- capture nav_links -%}
+  {%- for link in menu.links -%}
+    {%- comment -%} Hide collection links that have no products, per launch navigation rules. {%- endcomment -%}
+    {%- if link.type == 'collection_link' and link.object.products_count == 0 -%}{%- continue -%}{%- endif -%}
+    <li><a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>
+  {%- endfor -%}
+{%- endcapture -%}
+
+<header class="site-header" data-header>
+  <div class="page-width header__inner">
+    <div class="header__left">
+      <button type="button" class="icon-btn menu-toggle" aria-controls="MenuDrawer" aria-expanded="false" data-drawer-open="MenuDrawer">
+        {% render 'icon', name: 'menu' %}<span class="visually-hidden">Menu</span>
+      </button>
+      <button type="button" class="icon-btn hide-desktop" aria-controls="SearchPanel" aria-expanded="false" data-drawer-open="SearchPanel">
+        {% render 'icon', name: 'search' %}<span class="visually-hidden">Search</span>
+      </button>
+      <nav class="header__nav" aria-label="Main">
+        <ul role="list">{{ nav_links }}</ul>
+      </nav>
+    </div>
+
+    {{ logo }}
+
+    <div class="header__actions">
+      {%- if localization.available_countries.size > 1 -%}
+        <button type="button" class="locale-trigger header__locale" aria-controls="LocaleModal" aria-expanded="false" data-drawer-open="LocaleModal">
+          {% render 'icon', name: 'globe' %}
+          <span>{{ localization.country.iso_code }} · {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}</span>
+          <span class="visually-hidden">— change country or currency</span>
+        </button>
+      {%- endif -%}
+      <button type="button" class="icon-btn hide-mobile" aria-controls="SearchPanel" aria-expanded="false" data-drawer-open="SearchPanel">
+        {% render 'icon', name: 'search' %}<span class="visually-hidden">Search</span>
+      </button>
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="icon-btn hide-mobile" href="{{ routes.account_url }}">{% render 'icon', name: 'account' %}<span class="visually-hidden">Account</span></a>
+      {%- endif -%}
+      <a class="icon-btn" href="{{ routes.cart_url }}" id="BagIcon"{% if settings.cart_type == 'drawer' %} data-drawer-open="CartDrawer" aria-controls="CartDrawer" role="button" aria-expanded="false"{% endif %}>
+        {% render 'icon', name: 'bag' %}
+        <span class="visually-hidden">Bag, <span data-cart-count-text>{{ cart.item_count }}</span> items</span>
+        <span class="bag-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %} aria-hidden="true">{{ cart.item_count }}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+{% render 'country-suggestion' %}
+
+<div class="drawer drawer--left" id="MenuDrawer" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1" hidden>
+  <div class="drawer__head">
+    <h2>Menu</h2>
+    <button type="button" class="icon-btn" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close menu</span></button>
+  </div>
+  <div class="drawer__body">
+    <nav aria-label="Main (mobile)">
+      <ul class="mobile-nav" role="list">{{ nav_links }}</ul>
+      {%- if secondary.links.size > 0 -%}
+        <ul class="mobile-nav mobile-nav__secondary mt-32" role="list">
+          {%- for link in secondary.links -%}<li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>{%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </nav>
+  </div>
+  {%- if localization.available_countries.size > 1 -%}
+    <div class="drawer__foot">
+      <button type="button" class="locale-trigger" aria-controls="LocaleModal" aria-expanded="false" data-drawer-open="LocaleModal">
+        {% render 'icon', name: 'globe' %} {{ localization.country.name }} · {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}
+      </button>
+    </div>
+  {%- endif -%}
+</div>
+
+<div class="search-panel" id="SearchPanel" role="dialog" aria-modal="true" aria-label="Search" tabindex="-1" hidden>
+  <predictive-search class="page-width">
+    <form action="{{ routes.search_url }}" method="get" role="search">
+      <div class="search-field">
+        <label class="visually-hidden" for="PredictiveSearchInput">Search the shop</label>
+        {% render 'icon', name: 'search' %}
+        <input id="PredictiveSearchInput" type="search" name="q" placeholder="Search" autocomplete="off"
+          role="combobox" aria-expanded="false" aria-controls="PredictiveResults" aria-autocomplete="list">
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="button" class="icon-btn" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close search</span></button>
+      </div>
+    </form>
+    <div id="PredictiveResults" class="predictive-results" aria-live="polite"></div>
+  </predictive-search>
+</div>
+
+{%- if localization.available_countries.size > 1 -%}
+  <div class="modal" id="LocaleModal" role="dialog" aria-modal="true" aria-labelledby="LocaleModalTitle" tabindex="-1" hidden>
+    <button type="button" class="icon-btn modal__close" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close</span></button>
+    <h2 class="h3" id="LocaleModalTitle">Country &amp; currency</h2>
+    <p class="small muted mt-16">Choose where you are shopping from. This sets the currency prices are shown in; it doesn't change where we can deliver.</p>
+    {%- form 'localization', id: 'HeaderLocalizationForm', class: 'mt-16' -%}
+      <div class="field">
+        <label for="HeaderCountry">Country / region</label>
+        <select id="HeaderCountry" name="country_code" class="select">
+          {%- for country in localization.available_countries -%}
+            <option value="{{ country.iso_code }}"{% if country.iso_code == localization.country.iso_code %} selected{% endif %}>
+              {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+      <input type="hidden" name="return_to" value="{{ request.path }}">
+      <button type="submit" class="btn btn--block">Update</button>
+    {%- endform -%}
+    <div class="currency-note rte">{{ settings.currency_note }}</div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Main menu", "default": "main-menu", "info": "Collection links with no products are hidden automatically." },
+    { "type": "link_list", "id": "secondary_menu", "label": "Mobile menu — secondary links", "default": "footer" }
+  ],
+  "enabled_on": { "groups": ["header"] }
+}
+{% endschema %}

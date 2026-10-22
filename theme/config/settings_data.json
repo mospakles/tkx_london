@@ -1,0 +1,27 @@
+{
+  "current": {
+    "store_mode": "prelaunch",
+    "launch_date_text": "Target launch: 26 December 2026",
+    "prelaunch_cta_label": "Join the Launch List",
+    "live_cta_label": "Shop the Collection",
+    "live_cta_link": "/collections/all",
+    "logo_width": 150,
+    "color_background": "#f3eee5",
+    "color_surface": "#faf7f1",
+    "color_text": "#111110",
+    "color_charcoal": "#2a2927",
+    "color_chocolate": "#4a3226",
+    "color_taupe": "#a89a89",
+    "color_olive": "#5f6146",
+    "type_heading_font": "archivo_n7",
+    "type_body_font": "dm_sans_n4",
+    "cart_type": "drawer",
+    "cookie_banner_enabled": false,
+    "enable_country_suggestion": true
+  },
+  "presets": {
+    "Default": {
+      "store_mode": "prelaunch"
+    }
+  }
+}

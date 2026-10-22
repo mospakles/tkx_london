@@ -1,0 +1,8 @@
+{%- comment -%}
+  Shows a marker only inside the theme editor, so the owner can see which
+  content still needs confirming. Customers never see it.
+  Usage: {% render 'owner-review', note: 'Add fabric composition (metafield tkx.fabric)' %}
+{%- endcomment -%}
+{%- if request.design_mode -%}
+  <p class="dev-note">Owner review: {{ note }}</p>
+{%- endif -%}

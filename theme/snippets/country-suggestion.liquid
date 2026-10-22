@@ -1,0 +1,23 @@
+{%- comment -%}
+  Non-redirecting country/currency suggestion. theme.js asks Shopify for a
+  suggestion (/browsing_context_suggestions.json — endpoint must be verified on
+  the live store) and only shows this bar if the suggested country differs from
+  the current one. Dismissal is remembered on this device. Never redirects.
+{%- endcomment -%}
+{%- if settings.enable_country_suggestion -%}
+  <country-suggestion class="country-suggestion" data-current-country="{{ localization.country.iso_code }}" hidden>
+    <div class="page-width country-suggestion__inner">
+      <p data-suggestion-text></p>
+      {%- form 'localization', id: 'CountrySuggestionForm' -%}
+        <input type="hidden" name="country_code" value="" data-suggestion-country>
+        <input type="hidden" name="return_to" value="{{ request.path }}">
+        <button type="submit" class="btn btn--light btn--small" data-suggestion-accept>Switch</button>
+      {%- endform -%}
+      <button type="button" class="icon-btn" data-suggestion-dismiss>{% render 'icon', name: 'close' %}<span class="visually-hidden">Dismiss suggestion</span></button>
+    </div>
+  </country-suggestion>
+  {%- comment -%} Name/currency lookup for available countries only {%- endcomment -%}
+  <script type="application/json" data-country-map>
+    { {%- for c in localization.available_countries -%}{{ c.iso_code | json }}: { "name": {{ c.name | json }}, "currency": {{ c.currency.iso_code | json }}, "symbol": {{ c.currency.symbol | json }} }{% unless forloop.last %},{% endunless %}{%- endfor -%} }
+  </script>
+{%- endif -%}

@@ -1,0 +1,68 @@
+{%- comment -%}
+  Contact form using Shopify's native contact form (messages go to the store
+  email; Shopify applies hCaptcha spam protection when enabled in
+  Online Store → Preferences). A hidden honeypot adds a basic extra check.
+  Success is only shown when Shopify confirms the submission.
+{%- endcomment -%}
+<div class="page-width">
+  <header class="page-hero"><h1 class="h1">{{ page.title | default: 'Contact' | escape }}</h1></header>
+  <div class="page-layout">
+    <div class="rte">{{ page.content }}</div>
+    <div style="max-width:560px">
+      {%- form 'contact', id: 'ContactForm', novalidate: 'novalidate', data-validate: 'true' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="status-msg status-msg--success" role="status" tabindex="-1" autofocus>Thank you — your message has been sent. We'll reply by email.</p>
+        {%- elsif form.errors -%}
+          <div class="status-msg status-msg--error" role="alert" id="ContactErrors">
+            <p>Your message wasn't sent. Please check:</p>
+            <ul>
+              {%- for field in form.errors -%}
+                <li>{% if field == 'form' %}{{ form.errors.messages[field] }}{% else %}{{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}{% endif %}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        <div class="field">
+          <label for="ContactName">Name <span aria-hidden="true">*</span></label>
+          <input class="input" id="ContactName" type="text" name="contact[name]" autocomplete="name" required value="{{ form.name }}" aria-describedby="ContactName-err">
+          <span class="field__error" id="ContactName-err" hidden>Please enter your name.</span>
+        </div>
+        <div class="field">
+          <label for="ContactEmail">Email <span aria-hidden="true">*</span></label>
+          <input class="input" id="ContactEmail" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}"
+            {% if form.errors contains 'email' %}aria-invalid="true"{% endif %} aria-describedby="ContactEmail-err">
+          <span class="field__error" id="ContactEmail-err" hidden>Please enter a valid email address.</span>
+        </div>
+        <div class="field">
+          <label for="ContactOrder">Order number (optional)</label>
+          <input class="input" id="ContactOrder" type="text" name="contact[order_number]">
+        </div>
+        <div class="field">
+          <label for="ContactTopic">Topic</label>
+          <select class="select" id="ContactTopic" name="contact[topic]">
+            <option>General question</option>
+            <option>Order or delivery</option>
+            <option>Returns</option>
+            <option>Sizing and fit</option>
+            <option>Press and partnerships</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ContactBody">Message <span aria-hidden="true">*</span></label>
+          <textarea class="textarea" id="ContactBody" name="contact[body]" required aria-describedby="ContactBody-err">{{ form.body }}</textarea>
+          <span class="field__error" id="ContactBody-err" hidden>Please enter a message.</span>
+        </div>
+        <div class="hp-field" aria-hidden="true">
+          <label for="ContactWebsite">Leave this field empty</label>
+          <input id="ContactWebsite" type="text" name="contact[website]" tabindex="-1" autocomplete="off" data-honeypot>
+        </div>
+        <p class="xsmall muted">We use your details only to reply to your message. {%- if shop.privacy_policy %} See our <a href="{{ shop.privacy_policy.url }}">privacy policy</a>.{% endif %}</p>
+        <button type="submit" class="btn mt-16">Send message</button>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{ "name": "Contact form" }
+{% endschema %}

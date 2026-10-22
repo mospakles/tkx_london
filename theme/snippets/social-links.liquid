@@ -1,0 +1,22 @@
+{%- liquid
+  assign has_social = false
+  if settings.social_instagram != blank or settings.social_tiktok != blank or settings.social_pinterest != blank or settings.social_youtube != blank
+    assign has_social = true
+  endif
+-%}
+{%- if has_social -%}
+  <ul class="social-links" role="list">
+    {%- if settings.social_instagram != blank -%}
+      <li><a class="icon-btn" href="{{ settings.social_instagram }}" rel="noopener" target="_blank">{% render 'icon', name: 'instagram' %}<span class="visually-hidden">Instagram (opens in a new tab)</span></a></li>
+    {%- endif -%}
+    {%- if settings.social_tiktok != blank -%}
+      <li><a class="icon-btn" href="{{ settings.social_tiktok }}" rel="noopener" target="_blank">{% render 'icon', name: 'tiktok' %}<span class="visually-hidden">TikTok (opens in a new tab)</span></a></li>
+    {%- endif -%}
+    {%- if settings.social_pinterest != blank -%}
+      <li><a class="icon-btn" href="{{ settings.social_pinterest }}" rel="noopener" target="_blank">{% render 'icon', name: 'pinterest' %}<span class="visually-hidden">Pinterest (opens in a new tab)</span></a></li>
+    {%- endif -%}
+    {%- if settings.social_youtube != blank -%}
+      <li><a class="icon-btn" href="{{ settings.social_youtube }}" rel="noopener" target="_blank">{% render 'icon', name: 'youtube' %}<span class="visually-hidden">YouTube (opens in a new tab)</span></a></li>
+    {%- endif -%}
+  </ul>
+{%- endif -%}

@@ -1,0 +1,12 @@
+<div class="page-width" style="max-width:520px;padding-block:64px">
+  <h1 class="h2">Create account</h1>
+  {%- form 'create_customer', class: 'mt-32' -%}
+    {%- if form.errors -%}<p class="status-msg status-msg--error" role="alert">{{ form.errors | default_errors }}</p>{%- endif -%}
+    <div class="field"><label for="RegFirst">First name</label><input class="input" id="RegFirst" name="customer[first_name]" autocomplete="given-name"></div>
+    <div class="field"><label for="RegLast">Last name</label><input class="input" id="RegLast" name="customer[last_name]" autocomplete="family-name"></div>
+    <div class="field"><label for="RegEmail">Email</label><input class="input" id="RegEmail" type="email" name="customer[email]" autocomplete="email" required></div>
+    <div class="field"><label for="RegPassword">Password</label><input class="input" id="RegPassword" type="password" name="customer[password]" autocomplete="new-password" required></div>
+    <label class="checkbox"><input type="checkbox" name="customer[accepts_marketing]" value="true"> Email me about launches and new collections (optional)</label>
+    <button class="btn btn--block mt-16">Create account</button>
+  {%- endform -%}
+</div>

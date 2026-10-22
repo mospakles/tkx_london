@@ -1,0 +1,14 @@
+{%- comment -%}
+  Delivery & returns summary for product pages. Text comes only from the
+  owner's Delivery & Returns page and shipping policy — nothing is invented.
+{%- endcomment -%}
+{%- if settings.delivery_page != blank -%}
+  <div class="rte">{{ settings.delivery_page.content | strip_html | truncatewords: 60 }}</div>
+  <p><a href="{{ settings.delivery_page.url }}">Full delivery &amp; returns information</a></p>
+{%- elsif shop.shipping_policy != blank -%}
+  <div class="rte">{{ shop.shipping_policy.body | strip_html | truncatewords: 60 }}</div>
+  <p><a href="{{ shop.shipping_policy.url }}">Shipping policy</a>{% if shop.refund_policy %} · <a href="{{ shop.refund_policy.url }}">Returns policy</a>{% endif %}</p>
+{%- else -%}
+  <p>Delivery options and costs for your country are shown at checkout before you pay.</p>
+  {% render 'owner-review', note: 'Choose the Delivery & returns page in Theme settings → Shopping, or add a shipping policy.' %}
+{%- endif -%}

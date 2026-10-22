@@ -1,0 +1,262 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "TKX London",
+    "theme_version": "0.1.0",
+    "theme_author": "TKX London",
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://help.shopify.com"
+  },
+  {
+    "name": "Store mode",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Controls how the storefront presents itself. This never switches automatically on a date — change it yourself when you are ready to launch. To hide the whole shop before launch, also use Online Store → Preferences → Password protection."
+      },
+      {
+        "type": "select",
+        "id": "store_mode",
+        "label": "Store mode",
+        "options": [
+          {
+            "value": "prelaunch",
+            "label": "Pre-launch (launch list, no Add to Bag)"
+          },
+          {
+            "value": "live",
+            "label": "Live (full shop)"
+          }
+        ],
+        "default": "prelaunch",
+        "info": "Never switches automatically."
+      },
+      {
+        "type": "text",
+        "id": "launch_date_text",
+        "label": "Launch date wording",
+        "default": "Target launch: 26 December 2026",
+        "info": "Edit freely if the date moves. Shown on the pre-launch page."
+      },
+      {
+        "type": "text",
+        "id": "prelaunch_cta_label",
+        "label": "Pre-launch button label",
+        "default": "Join the Launch List"
+      },
+      {
+        "type": "url",
+        "id": "prelaunch_cta_link",
+        "label": "Pre-launch button link",
+        "info": "Leave blank to scroll to the email sign-up section."
+      },
+      {
+        "type": "text",
+        "id": "live_cta_label",
+        "label": "Live button label",
+        "default": "Shop the Collection"
+      },
+      {
+        "type": "url",
+        "id": "live_cta_link",
+        "label": "Live button link",
+        "default": "/collections/all"
+      }
+    ]
+  },
+  {
+    "name": "Logo & emblem",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "TKX LONDON wordmark",
+        "info": "Upload the approved artwork. Until then a temporary text wordmark is shown."
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 80,
+        "max": 260,
+        "step": 5,
+        "unit": "px",
+        "label": "Logo width (desktop)",
+        "default": 150
+      },
+      {
+        "type": "image_picker",
+        "id": "emblem",
+        "label": "Abstract emblem",
+        "info": "Approved emblem artwork, used in brand details. Never redrawn."
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Use the approved emblem. 64 × 64 px square PNG."
+      }
+    ]
+  },
+  {
+    "name": "Colours",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background (warm ivory)",
+        "default": "#f3eee5"
+      },
+      {
+        "type": "color",
+        "id": "color_surface",
+        "label": "Surface (paper)",
+        "default": "#faf7f1"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text (black)",
+        "default": "#111110"
+      },
+      {
+        "type": "color",
+        "id": "color_charcoal",
+        "label": "Charcoal",
+        "default": "#2a2927"
+      },
+      {
+        "type": "color",
+        "id": "color_chocolate",
+        "label": "Accent: chocolate",
+        "default": "#4a3226"
+      },
+      {
+        "type": "color",
+        "id": "color_taupe",
+        "label": "Accent: taupe",
+        "default": "#a89a89"
+      },
+      {
+        "type": "color",
+        "id": "color_olive",
+        "label": "Accent: muted olive",
+        "default": "#5f6146"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "type_heading_font",
+        "label": "Headings",
+        "default": "archivo_n7"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body",
+        "default": "dm_sans_n4"
+      }
+    ]
+  },
+  {
+    "name": "Shopping",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_country_suggestion",
+        "label": "Suggest country/currency to visitors",
+        "default": true,
+        "info": "Shows a dismissible suggestion based on the visitor's location. Never redirects. Do not also turn on Shopify's automatic redirection."
+      },
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Bag style",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Slide-out drawer"
+          },
+          {
+            "value": "page",
+            "label": "Bag page"
+          }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "richtext",
+        "id": "currency_note",
+        "label": "Currency note (bag)",
+        "default": "<p>Prices are shown in your selected currency. If a currency can't be used for payment, checkout will show the amount in GBP before you pay.</p>",
+        "info": "Update once your payment provider's checkout currencies are confirmed."
+      },
+      {
+        "type": "text",
+        "id": "dispatch_estimate",
+        "label": "Default dispatch estimate",
+        "info": "Leave blank until confirmed. A product's own dispatch metafield overrides this."
+      },
+      {
+        "type": "page",
+        "id": "size_guide_page",
+        "label": "Size guide page"
+      },
+      {
+        "type": "page",
+        "id": "delivery_page",
+        "label": "Delivery & returns page"
+      }
+    ]
+  },
+  {
+    "name": "Social",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Only filled-in links are shown."
+      },
+      {
+        "type": "url",
+        "id": "social_instagram",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok",
+        "label": "TikTok"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest",
+        "label": "Pinterest"
+      },
+      {
+        "type": "url",
+        "id": "social_youtube",
+        "label": "YouTube"
+      }
+    ]
+  },
+  {
+    "name": "Privacy",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "cookie_banner_enabled",
+        "label": "Use theme cookie banner",
+        "default": false,
+        "info": "Recommended: leave off and use Shopify's own cookie banner (Settings → Customer privacy). Never use both."
+      },
+      {
+        "type": "text",
+        "id": "cookie_banner_text",
+        "label": "Cookie banner text",
+        "default": "We use essential cookies to run the shop and, with your permission, analytics and marketing cookies."
+      }
+    ]
+  }
+]

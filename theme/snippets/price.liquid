@@ -1,0 +1,15 @@
+{%- comment -%} Usage: {% render 'price', product: product, variant: variant %} {%- endcomment -%}
+{%- liquid
+  assign target = variant | default: product.selected_or_first_available_variant
+  if variant == blank and product.price_varies
+    assign show_from = true
+  endif
+-%}
+<span class="price" data-price>
+  {%- if show_from -%}From {% endif -%}
+  {{- target.price | money -}}
+</span>
+{%- if target.compare_at_price > target.price -%}
+  <span class="visually-hidden">Regular price</span>
+  <s class="price price--compare">{{ target.compare_at_price | money }}</s>
+{%- endif -%}

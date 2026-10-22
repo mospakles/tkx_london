@@ -1,0 +1,18 @@
+{%- comment -%}
+  The main call to action, chosen by the theme setting "Store mode".
+  Usage: {% render 'primary-cta', class: 'btn btn--light' %}
+{%- endcomment -%}
+{%- liquid
+  if settings.store_mode == 'live'
+    assign cta_label = settings.live_cta_label | default: 'Shop the Collection'
+    assign cta_link = settings.live_cta_link | default: routes.all_products_collection_url
+  else
+    assign cta_label = settings.prelaunch_cta_label | default: 'Join the Launch List'
+    assign home_list = routes.root_url | append: '#launch-list'
+    if template.name == 'index'
+      assign home_list = '#launch-list'
+    endif
+    assign cta_link = settings.prelaunch_cta_link | default: home_list
+  endif
+-%}
+<a class="{{ class | default: 'btn' }}" href="{{ cta_link }}">{{ cta_label | escape }}</a>

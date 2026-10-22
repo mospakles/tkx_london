@@ -1,0 +1,121 @@
+{%- comment -%}
+  Usage: {% render 'product-card', product: product, lazy: true %}
+  Badges come only from real data: availability and the tkx.preorder_note metafield.
+{%- endcomment -%}
+{%- liquid
+  assign colour_option = nil
+  for option in product.options_with_values
+    assign option_name = option.name | downcase
+    if option_name == 'color' or option_name == 'colour'
+      assign colour_option = option
+    endif
+  endfor
+  comment
+    Matching sets (template suffix "set") show the combined price of their
+    pieces, counting only variants in the set's colour (tkx.set_colour) when one
+    is fixed. A set is available when every piece has at least one such variant
+    in stock. "From" is shown when a piece's price varies between those variants.
+  endcomment
+  assign is_set = false
+  if product.template_suffix == 'set'
+    assign is_set = true
+    assign set_total = 0
+    assign set_available = true
+    assign set_price_varies = false
+    assign set_colour = product.metafields.tkx.set_colour.value | downcase | strip
+    for piece in product.metafields.tkx.set_components.value
+      assign piece_min = 999999999999
+      assign piece_max = 0
+      assign piece_available = false
+      for variant in piece.variants
+        assign matches = true
+        if set_colour != blank
+          assign matches = false
+          for value in variant.options
+            assign v = value | downcase | strip
+            if v == set_colour
+              assign matches = true
+            endif
+          endfor
+        endif
+        if matches
+          if variant.price < piece_min
+            assign piece_min = variant.price
+          endif
+          if variant.price > piece_max
+            assign piece_max = variant.price
+          endif
+          if variant.available
+            assign piece_available = true
+          endif
+        endif
+      endfor
+      if piece_max == 0
+        assign piece_min = 0
+      endif
+      if piece_min != piece_max
+        assign set_price_varies = true
+      endif
+      assign set_total = set_total | plus: piece_min
+      unless piece_available
+        assign set_available = false
+      endunless
+    endfor
+  endif
+
+  comment
+    Pre-order only when a variant is genuinely selling past zero stock.
+  endcomment
+  assign is_preorder = false
+  if product.metafields.tkx.preorder_note != blank
+    for variant in product.variants
+      if variant.available and variant.inventory_management != blank and variant.inventory_policy == 'continue' and variant.inventory_quantity <= 0
+        assign is_preorder = true
+      endif
+    endfor
+  endif
+  assign loading = 'eager'
+  if lazy
+    assign loading = 'lazy'
+  endif
+-%}
+<article class="product-card">
+  <a class="product-card__media zoom-on-hover" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    <div class="media ratio-tall">
+      {%- if product.featured_media -%}
+        {{ product.featured_media | image_url: width: 900 | image_tag: loading: loading, widths: '360, 540, 720, 900', sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw', alt: product.featured_media.alt | default: product.title }}
+        {%- if product.media[1] -%}
+          {{ product.media[1] | image_url: width: 900 | image_tag: loading: 'lazy', widths: '360, 540, 720, 900', sizes: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw', alt: '' }}
+        {%- endif -%}
+      {%- else -%}
+        {% render 'placeholder', type: 'product-apparel-1', label: 'Front product image' %}
+      {%- endif -%}
+    </div>
+  </a>
+  {%- if is_set -%}
+    <span class="product-card__badge product-card__badge--dark">{% if set_available %}Set{% else %}Partly sold out{% endif %}</span>
+  {%- elsif product.available == false -%}
+    <span class="product-card__badge">Sold out</span>
+  {%- elsif is_preorder -%}
+    <span class="product-card__badge product-card__badge--dark">Pre-order</span>
+  {%- endif -%}
+  <div class="product-card__info">
+    <a class="product-card__title" href="{{ product.url }}">{{ product.title | escape }}</a>
+    <div class="product-card__meta">
+      <span>{%- if is_set -%}<span class="price">{% if set_price_varies %}From {% endif %}{{ set_total | money }}</span> <span class="xsmall muted">for the set</span>{%- else -%}{% render 'price', product: product %}{%- endif -%}</span>
+      {%- if colour_option and colour_option.values.size > 1 -%}
+        <span class="product-card__colours">{{ colour_option.values.size }} colours</span>
+      {%- endif -%}
+    </div>
+    {%- if colour_option -%}
+      <ul class="swatches product-card__swatches" role="list" aria-label="Colours">
+        {%- for value in colour_option.values -%}
+          <li>
+            <span class="swatch" style="--swatch: {% render 'swatch-color', value: value %}" title="{{ value | escape }}"></span>
+            <span class="visually-hidden">{{ value | escape }}</span>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</article>

@@ -1,0 +1,274 @@
+{%- comment -%}
+  Product page. Garment facts come only from product metafields (namespace
+  "tkx"). When one is blank, customers see nothing for it and the owner sees an
+  "Owner review" marker in the theme editor. See shopify-setup/metafield-definitions.md.
+{%- endcomment -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign mf = product.metafields.tkx
+  assign dispatch = mf.dispatch_estimate.value | default: settings.dispatch_estimate
+  assign is_live = false
+  if settings.store_mode == 'live'
+    assign is_live = true
+  endif
+-%}
+
+<div class="page-width">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a> /
+    {%- if collection -%} <a href="{{ collection.url }}">{{ collection.title | escape }}</a> /{%- endif -%}
+    <span aria-current="page"> {{ product.title | escape }}</span>
+  </nav>
+
+  <product-info class="product" data-section="{{ section.id }}" data-url="{{ product.url }}">
+    {%- comment -%} Gallery: front, back, detail, then movement video if supplied {%- endcomment -%}
+    <div>
+      <ul class="product__gallery" role="list" aria-label="{{ product.title | escape }} images">
+        {%- for media in product.media -%}
+          <li>
+            <div class="media ratio-tall">
+              {%- case media.media_type -%}
+                {%- when 'image' -%}
+                  {%- liquid
+                    assign loading = 'lazy'
+                    if forloop.first
+                      assign loading = 'eager'
+                    endif
+                  -%}
+                  {{ media | image_url: width: 1800 | image_tag: loading: loading, widths: '500, 750, 1000, 1400, 1800', sizes: '(min-width: 990px) 55vw, 86vw', alt: media.alt | default: product.title }}
+                {%- when 'video' -%}
+                  {{ media | video_tag: controls: true, muted: true, playsinline: true, preload: 'none', image_size: '1000x' }}
+                {%- when 'external_video' -%}
+                  {{ media | external_video_tag: loading: 'lazy' }}
+                {%- else -%}
+                  {{ media | media_tag }}
+              {%- endcase -%}
+            </div>
+            {%- if media.alt != blank and media.media_type != 'image' -%}<p class="gallery-caption">{{ media.alt | escape }}</p>{%- endif -%}
+          </li>
+        {%- else -%}
+          <li><div class="media ratio-tall">{% render 'placeholder', type: 'product-apparel-1', label: 'Front, back and detail photographs of the approved garment' %}</div></li>
+        {%- endfor -%}
+      </ul>
+      {%- if product.media.size < 3 -%}
+        {% render 'owner-review', note: 'Add front, back and detail photographs (and a movement video if available).' %}
+      {%- endif -%}
+    </div>
+
+    <div class="product__info">
+      <h1 class="h2 product__title">{{ product.title | escape }}</h1>
+      <div class="product__price" data-product-price>{% render 'price', product: product, variant: current %}</div>
+      <p class="price-note">{% if cart.taxes_included %}Tax included.{% endif %} Delivery calculated at checkout.</p>
+
+      {%- form 'product', product, id: 'ProductForm', novalidate: 'novalidate', data-product-form: 'true' -%}
+        {%- if is_live -%}
+          {%- comment -%} JS names this input "id"; without JS the noscript select below is used instead. {%- endcomment -%}
+          <input type="hidden" value="{{ current.id }}" data-variant-id>
+          <noscript>
+            <div class="field mt-16">
+              <label for="ProductSelect-{{ section.id }}">Colour and size</label>
+              <select class="select" id="ProductSelect-{{ section.id }}" name="id">
+                {%- for v in product.variants -%}
+                  <option value="{{ v.id }}"{% if v == current %} selected{% endif %}{% unless v.available %} disabled{% endunless %}>
+                    {{ v.title | escape }} — {% if v.available %}{{ v.price | money }}{% else %}Sold out{% endif %}
+                  </option>
+                {%- endfor -%}
+              </select>
+            </div>
+          </noscript>
+        {%- endif -%}
+
+        {%- unless product.has_only_default_variant -%}
+          <variant-picker class="mt-32" style="display:block">
+            {%- for option in product.options_with_values -%}
+              {%- assign oname = option.name | downcase -%}
+              <fieldset class="option-group">
+                <legend>
+                  <span>{{ option.name | escape }}</span>
+                  <span class="selected-value" data-selected-value="{{ forloop.index0 }}">{{ option.selected_value | escape }}</span>
+                </legend>
+                <div class="option-row">
+                  {%- for value in option.values -%}
+                    {%- assign vid = section.id | append: '-' | append: option.position | append: '-' | append: forloop.index0 -%}
+                    <input type="radio" id="{{ vid }}" name="option{{ option.position }}" value="{{ value | escape }}" data-option-index="{{ option.position | minus: 1 }}"
+                      {% if value.selected %}checked{% endif %}>
+                    {%- if oname == 'color' or oname == 'colour' -%}
+                      <label class="swatch-btn{% unless value.available %} is-unavailable{% endunless %}" for="{{ vid }}">
+                        <span class="swatch" style="--swatch: {% render 'swatch-color', value: value %}"></span>
+                        {{ value | escape }}<span class="visually-hidden" data-unavailable-text>{% unless value.available %} — sold out{% endunless %}</span>
+                      </label>
+                    {%- else -%}
+                      <label class="size-btn{% unless value.available %} is-unavailable{% endunless %}" for="{{ vid }}">
+                        {{ value | escape }}<span class="visually-hidden" data-unavailable-text>{% unless value.available %} — sold out{% endunless %}</span>
+                      </label>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+                {%- if oname == 'size' -%}
+                  {%- if settings.size_guide_page != blank -%}
+                    <button type="button" class="size-guide-link mt-16" aria-controls="SizeGuideModal" aria-expanded="false" data-drawer-open="SizeGuideModal">Size guide</button>
+                  {%- else -%}
+                    {% render 'owner-review', note: 'Choose the Size guide page in Theme settings → Shopping.' %}
+                  {%- endif -%}
+                {%- endif -%}
+              </fieldset>
+            {%- endfor -%}
+            <script type="application/json" data-variants>
+              [
+                {%- for v in product.variants -%}
+                  {
+                    "id": {{ v.id }},
+                    "options": {{ v.options | json }},
+                    "available": {{ v.available | json }},
+                    "price": {{ v.price | money | json }},
+                    "compare": {% if v.compare_at_price > v.price %}{{ v.compare_at_price | money | json }}{% else %}null{% endif %},
+                    "preorder": {% if v.available and v.inventory_management != blank and v.inventory_policy == 'continue' and v.inventory_quantity <= 0 %}true{% else %}false{% endif %},
+                    "low": {% if v.available and v.inventory_management != blank and v.inventory_quantity > 0 and v.inventory_quantity <= section.settings.low_stock %}true{% else %}false{% endif %}
+                  }{% unless forloop.last %},{% endunless %}
+                {%- endfor -%}
+              ]
+            </script>
+          </variant-picker>
+        {%- endunless -%}
+
+        {%- liquid
+          assign stock_state = 'in'
+          if current.available == false
+            assign stock_state = 'out'
+          elsif current.inventory_management != blank and current.inventory_policy == 'continue' and current.inventory_quantity <= 0
+            assign stock_state = 'preorder'
+          elsif current.inventory_management != blank and current.inventory_quantity <= section.settings.low_stock
+            assign stock_state = 'low'
+          endif
+        -%}
+        <p class="stock-line" data-stock role="status" data-preorder-note="{{ mf.preorder_note.value | escape }}">
+          <span class="stock-dot{% if stock_state != 'in' %} stock-dot--{{ stock_state }}{% endif %}" aria-hidden="true"></span>
+          <span data-stock-text>
+            {%- case stock_state -%}
+              {%- when 'out' -%}Sold out in this size
+              {%- when 'preorder' -%}{{ mf.preorder_note.value | default: 'Pre-order' }}
+              {%- when 'low' -%}Low stock
+              {%- else -%}In stock
+            {%- endcase -%}
+          </span>
+        </p>
+
+        {%- if mf.model_info != blank or mf.fit_notes != blank -%}
+          <div class="product__fit">
+            {%- if mf.model_info != blank -%}<p>{{ mf.model_info.value | escape }}</p>{%- endif -%}
+            {%- if mf.fit_notes != blank -%}<p class="muted">{{ mf.fit_notes.value | escape | newline_to_br }}</p>{%- endif -%}
+          </div>
+        {%- else -%}
+          {% render 'owner-review', note: 'Add model height and size worn (tkx.model_info) and fit notes (tkx.fit_notes).' %}
+        {%- endif -%}
+
+        <div class="product__cta">
+          {%- if is_live -%}
+            <button type="submit" name="add" class="btn btn--block" data-add-button {% unless current.available %}disabled{% endunless %}>
+              <span data-add-text>
+                {%- if current.available == false -%}Sold out{%- elsif stock_state == 'preorder' -%}Pre-order{%- else -%}Add to Bag{%- endif -%}
+              </span>
+            </button>
+          {%- else -%}
+            {% render 'primary-cta', class: 'btn btn--block' %}
+            <p class="xsmall muted">Shopping opens at launch. {{ settings.launch_date_text | escape }}</p>
+          {%- endif -%}
+          <div class="status-msg status-msg--error" data-form-error role="alert" hidden></div>
+        </div>
+      {%- endform -%}
+
+      <ul class="product__assurances" role="list">
+        {%- if dispatch != blank -%}
+          <li>{% render 'icon', name: 'truck' %}<span>{{ dispatch | escape }}</span></li>
+        {%- else -%}
+          {% render 'owner-review', note: 'Add a dispatch estimate (Theme settings → Shopping, or tkx.dispatch_estimate).' %}
+        {%- endif -%}
+        {%- if settings.size_guide_page != blank -%}
+          <li>{% render 'icon', name: 'ruler' %}<a href="{{ settings.size_guide_page.url }}">Size guide</a></li>
+        {%- endif -%}
+      </ul>
+
+      <div class="accordion">
+        <details open>
+          <summary>Details</summary>
+          <div class="accordion__body">
+            {%- if product.description != blank -%}<div class="rte">{{ product.description }}</div>{%- endif -%}
+            {%- if mf.features != blank -%}
+              <ul>{%- for f in mf.features.value -%}<li>{{ f | escape }}</li>{%- endfor -%}</ul>
+            {%- else -%}
+              {% render 'owner-review', note: 'Add verified pocket, waistband and fastening details (tkx.features).' %}
+            {%- endif -%}
+          </div>
+        </details>
+        <details>
+          <summary>Fabric &amp; care</summary>
+          <div class="accordion__body">
+            {%- if mf.fabric != blank -%}<p><strong>Composition:</strong> {{ mf.fabric.value | escape }}</p>{%- endif -%}
+            {%- if mf.care != blank -%}<p>{{ mf.care.value | escape | newline_to_br }}</p>{%- endif -%}
+            {%- if mf.fabric == blank or mf.care == blank -%}
+              <p class="muted">Fabric and care details will be listed here.</p>
+              {% render 'owner-review', note: 'Add fabric composition (tkx.fabric) and care instructions (tkx.care) from the garment label.' %}
+            {%- endif -%}
+          </div>
+        </details>
+        <details>
+          <summary>Size &amp; measurements</summary>
+          <div class="accordion__body">
+            {%- assign m = mf.measurements.value -%}
+            {%- if m.rows -%}
+              <div class="table-scroll">
+                <table class="spec-table">
+                  <caption class="visually-hidden">Garment measurements{% if m.unit %} ({{ m.unit }}){% endif %}</caption>
+                  <thead><tr>{%- for c in m.columns -%}<th scope="col">{{ c | escape }}</th>{%- endfor -%}</tr></thead>
+                  <tbody>
+                    {%- for row in m.rows -%}
+                      <tr>{%- for cell in row -%}{%- if forloop.first -%}<th scope="row">{{ cell | escape }}</th>{%- else -%}<td>{{ cell | escape }}</td>{%- endif -%}{%- endfor -%}</tr>
+                    {%- endfor -%}
+                  </tbody>
+                </table>
+              </div>
+              {%- if m.unit -%}<p class="xsmall muted">Garment measurements in {{ m.unit | escape }}.</p>{%- endif -%}
+            {%- else -%}
+              <p class="muted">Garment measurements will be listed here.</p>
+              {% render 'owner-review', note: 'Add measured garment dimensions (tkx.measurements JSON).' %}
+            {%- endif -%}
+            {%- if settings.size_guide_page != blank -%}<p><a href="{{ settings.size_guide_page.url }}">Full size guide</a></p>{%- endif -%}
+          </div>
+        </details>
+        <details>
+          <summary>Delivery &amp; returns</summary>
+          <div class="accordion__body">{% render 'delivery-returns' %}</div>
+        </details>
+      </div>
+    </div>
+  </product-info>
+</div>
+
+{%- if is_live -%}
+  <div class="sticky-atc" data-sticky-atc aria-hidden="true">
+    <div class="sticky-atc__info">
+      <strong>{{ product.title | escape }}</strong>
+      {% unless product.has_only_default_variant %}<span data-sticky-variant>{{ current.title | escape }}</span> · {% endunless %}<span data-sticky-price>{{ current.price | money }}</span>
+    </div>
+    <button type="button" class="btn" data-sticky-add tabindex="-1" {% unless current.available %}disabled{% endunless %}>Add to Bag</button>
+  </div>
+{%- endif -%}
+
+{%- if settings.size_guide_page != blank -%}
+  <div class="modal" id="SizeGuideModal" role="dialog" aria-modal="true" aria-labelledby="SizeGuideTitle" tabindex="-1" hidden>
+    <button type="button" class="icon-btn modal__close" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close size guide</span></button>
+    <h2 class="h3" id="SizeGuideTitle">{{ settings.size_guide_page.title | escape }}</h2>
+    <div class="rte mt-16">{{ settings.size_guide_page.content }}</div>
+  </div>
+{%- endif -%}
+
+{% render 'structured-data', product: product %}
+
+{% schema %}
+{
+  "name": "Product",
+  "settings": [
+    { "type": "range", "id": "low_stock", "label": "Show 'Low stock' at or below", "min": 1, "max": 10, "step": 1, "default": 3, "info": "Only applies to tracked inventory." }
+  ]
+}
+{% endschema %}

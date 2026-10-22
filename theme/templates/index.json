@@ -1,0 +1,48 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": { "heading": "EVERYDAY IN MOTION.", "subheading": "Considered comfort. Confident style." }
+    },
+    "launch": {
+      "type": "featured-collection",
+      "settings": { "eyebrow": "The first collection", "heading": "Launch Collection", "collection": "launch-collection", "limit": 8 }
+    },
+    "look": {
+      "type": "shop-the-look",
+      "blocks": {
+        "look1": { "type": "look", "settings": { "name": "Desk to studio" } },
+        "look2": { "type": "look", "settings": { "name": "Weekend plans" } },
+        "look3": { "type": "look", "settings": { "name": "Travel day" } }
+      },
+      "block_order": ["look1", "look2", "look3"],
+      "settings": { "eyebrow": "Coordinated outfits", "heading": "Shop the Look", "text": "Choose a size for each piece. Untick anything you don't need." }
+    },
+    "details": {
+      "type": "considered-details",
+      "blocks": {
+        "d1": { "type": "detail", "settings": { "heading": "Fabric", "text": "Add verified detail" } },
+        "d2": { "type": "detail", "settings": { "heading": "Seams", "text": "Add verified detail" } },
+        "d3": { "type": "detail", "settings": { "heading": "Pockets", "text": "Add verified detail" } },
+        "d4": { "type": "detail", "settings": { "heading": "Tonal branding", "text": "Add verified detail" } }
+      },
+      "block_order": ["d1", "d2", "d3", "d4"],
+      "settings": { "eyebrow": "Up close", "heading": "Considered Details" }
+    },
+    "editorial": {
+      "type": "editorial",
+      "blocks": {
+        "e1": { "type": "image", "settings": { "caption": "Weekend plans" } },
+        "e2": { "type": "image", "settings": { "caption": "Travel days" } },
+        "e3": { "type": "image", "settings": { "caption": "Relaxed work" } },
+        "e4": { "type": "image", "settings": { "caption": "Movement" } },
+        "e5": { "type": "image", "settings": { "caption": "Evenings out" } }
+      },
+      "block_order": ["e1", "e2", "e3", "e4", "e5"],
+      "settings": { "eyebrow": "In motion", "heading": "Everyday, Everywhere" }
+    },
+    "story": { "type": "story", "settings": { "link": "/pages/our-story" } },
+    "newsletter": { "type": "newsletter", "settings": {} }
+  },
+  "order": ["hero", "launch", "look", "details", "editorial", "story", "newsletter"]
+}

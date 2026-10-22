@@ -1,0 +1,77 @@
+{%- comment -%}
+  Matching set page (template: product.set). The set "product" is only a
+  presentation: its pieces are the real products listed in the metafield
+  tkx.set_components, each with its own sizes and stock. Pieces are added to
+  the bag as separate lines, labelled with the set name.
+{%- endcomment -%}
+{%- liquid
+  assign components = product.metafields.tkx.set_components.value
+  assign colour = product.metafields.tkx.set_colour.value
+-%}
+<div class="page-width">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a> / <span aria-current="page">{{ product.title | escape }}</span>
+  </nav>
+
+  <set-bundle class="product" data-set-title="{{ product.title | escape }}">
+    <div>
+      <ul class="product__gallery" role="list">
+        {%- for media in product.media -%}
+          <li><div class="media ratio-tall">
+            {%- if media.media_type == 'image' -%}
+              {{ media | image_url: width: 1800 | image_tag: loading: 'lazy', widths: '500, 750, 1000, 1400, 1800', sizes: '(min-width: 990px) 55vw, 86vw' }}
+            {%- else -%}{{ media | media_tag }}{%- endif -%}
+          </div></li>
+        {%- else -%}
+          <li><div class="media ratio-tall">{% render 'placeholder', type: 'lifestyle-1', label: 'Set worn together — full-length' %}</div></li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="product__info">
+      <span class="eyebrow">Matching set</span>
+      <h1 class="h2 product__title mt-16">{{ product.title | escape }}</h1>
+      {%- if product.description != blank -%}<div class="rte muted">{{ product.description }}</div>{%- endif -%}
+
+      {%- if components.size > 0 -%}
+        <p class="small mt-16">Choose a size for each piece. Each piece is priced, stocked and returned individually.</p>
+        <div class="mt-16">
+          {%- for p in components -%}
+            {%- assign uid = section.id | append: '-' | append: forloop.index -%}
+            {% render 'component-picker', product: p, colour: colour, uid: uid, optional: false %}
+          {%- endfor -%}
+        </div>
+        <div class="look__total">
+          <span>Set total</span>
+          <strong data-bundle-total aria-live="polite">{{ 0 | money }}</strong>
+        </div>
+        <div class="status-msg status-msg--info" data-partial hidden>
+          <p data-partial-text></p>
+          <label class="checkbox mt-16"><input type="checkbox" data-allow-partial> Add only the available pieces</label>
+        </div>
+        {%- if settings.store_mode == 'live' -%}
+          <button type="button" class="btn btn--block" data-bundle-add disabled>Choose sizes to add</button>
+        {%- else -%}
+          {% render 'primary-cta', class: 'btn btn--block' %}
+        {%- endif -%}
+        <div class="status-msg" data-bundle-status role="status" hidden></div>
+        <div class="accordion">
+          <details>
+            <summary>Delivery &amp; returns</summary>
+            <div class="accordion__body">{% render 'delivery-returns' %}</div>
+          </details>
+        </div>
+      {%- else -%}
+        <p class="muted">This set isn't available yet.</p>
+        {% render 'owner-review', note: 'Add the set pieces in the product metafield tkx.set_components.' %}
+      {%- endif -%}
+    </div>
+  </set-bundle>
+</div>
+
+{% schema %}
+{
+  "name": "Matching set",
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

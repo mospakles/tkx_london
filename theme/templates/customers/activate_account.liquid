@@ -1,0 +1,9 @@
+<div class="page-width" style="max-width:520px;padding-block:64px">
+  <h1 class="h2">Activate account</h1>
+  {%- form 'activate_customer_password', class: 'mt-32' -%}
+    {%- if form.errors -%}<p class="status-msg status-msg--error" role="alert">{{ form.errors | default_errors }}</p>{%- endif -%}
+    <div class="field"><label for="ActPassword">Password</label><input class="input" id="ActPassword" type="password" name="customer[password]" autocomplete="new-password" required></div>
+    <div class="field"><label for="ActConfirm">Confirm password</label><input class="input" id="ActConfirm" type="password" name="customer[password_confirmation]" autocomplete="new-password" required></div>
+    <button class="btn btn--block">Activate account</button>
+  {%- endform -%}
+</div>

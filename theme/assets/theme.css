@@ -1,0 +1,48 @@
+/* Theme-only additions to base.css (Shopify-specific markup). */
+
+/* Without JavaScript, nothing should stay hidden behind reveal animations. */
+.no-js .reveal { opacity: 1; transform: none; }
+
+.hide-desktop { }
+@media (min-width: 990px) { .hide-desktop { display: none !important; } }
+@media (max-width: 989px) { .hide-mobile { display: none !important; } }
+
+.btn--small { min-height: 40px; padding: 8px 16px; font-size: 12px; }
+
+/* Shopify placeholder SVGs */
+.placeholder .placeholder-svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: rgba(17,17,16,.18); background: #e6dfd3; }
+.placeholder > *:not(svg) { position: relative; }
+
+/* Country suggestion bar (never redirects) */
+.country-suggestion { display: block; background: var(--c-charcoal); color: var(--c-paper); font-size: 13.5px; }
+.country-suggestion__inner { display: flex; align-items: center; gap: 12px; padding-top: 8px; padding-bottom: 8px; }
+.country-suggestion__inner p { flex: 1; }
+.country-suggestion form { margin: 0; }
+
+/* Predictive search */
+.predictive-results { max-width: 720px; }
+.predictive-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 4px; }
+.predictive-item { display: flex; align-items: center; gap: 14px; padding: 8px 0; text-decoration: none; min-height: 44px; }
+.predictive-item:hover strong { text-decoration: underline; }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 18px; }
+
+/* Footer extras */
+.social-links { display: flex; gap: 4px; list-style: none; padding: 0; margin: 0 0 0 -10px; }
+.payment-icons { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0; }
+.payment-icon { width: 38px; height: 24px; }
+
+/* Shopify section wrappers shouldn't add space */
+.shopify-section { display: block; }
+
+/* Busy states */
+[aria-busy="true"] { opacity: .6; pointer-events: none; transition: opacity var(--dur) var(--ease); }
+
+/* Owner-review marks inside page content */
+mark.owner-review { color: inherit; }
+
+/* Hero in the theme editor: keep the placeholder visible */
+.hero .placeholder { color: rgba(250,247,241,.75); }
+.hero .placeholder .placeholder-svg { background: #3a3936; fill: rgba(250,247,241,.12); }
+.prelaunch .placeholder .placeholder-svg { background: #2a2927; fill: rgba(250,247,241,.12); }

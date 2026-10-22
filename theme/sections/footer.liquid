@@ -1,0 +1,68 @@
+<footer class="site-footer">
+  <div class="page-width">
+    <div class="footer__grid">
+      <div class="footer__brand stack-16">
+        {%- if settings.emblem != blank -%}
+          {{ settings.emblem | image_url: width: 120 | image_tag: class: 'emblem-mark', loading: 'lazy', alt: '' }}
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}<div class="rte muted">{{ section.settings.text }}</div>{%- endif -%}
+        {% render 'social-links' %}
+      </div>
+      {%- for block in section.blocks -%}
+        {%- assign menu = linklists[block.settings.menu] -%}
+        {%- if menu.links.size > 0 -%}
+          <nav aria-label="{{ block.settings.heading | default: menu.title | escape }}" {{ block.shopify_attributes }}>
+            <h2 class="footer__heading">{{ block.settings.heading | default: menu.title | escape }}</h2>
+            <ul class="footer__links" role="list">
+              {%- for link in menu.links -%}
+                {%- if link.type == 'collection_link' and link.object.products_count == 0 -%}{%- continue -%}{%- endif -%}
+                <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
+              {%- endfor -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <p class="footer__wordmark h-display" aria-hidden="true">TKX London</p>
+
+    <div class="footer__bottom">
+      <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+      {%- if shop.policies.size > 0 -%}
+        <ul class="footer__links" role="list" style="display:flex;flex-wrap:wrap;gap:0 18px">
+          {%- for policy in shop.policies -%}<li><a href="{{ policy.url }}">{{ policy.title }}</a></li>{%- endfor -%}
+        </ul>
+      {%- endif -%}
+      {%- if settings.cookie_banner_enabled -%}
+        <button type="button" onclick="document.dispatchEvent(new CustomEvent('tkx:open-cookie-settings'))">Cookie settings</button>
+      {%- endif -%}
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <ul class="payment-icons" role="list" aria-label="Payment methods">
+          {%- for type in shop.enabled_payment_types -%}<li>{{ type | payment_type_svg_tag: class: 'payment-icon' }}</li>{%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "max_blocks": 3,
+  "settings": [
+    { "type": "richtext", "id": "text", "label": "Brand text", "default": "<p>Considered comfort. Confident style.</p>" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true, "info": "Shows only the methods enabled in your payment settings." }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading" },
+        { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" }
+      ]
+    }
+  ],
+  "enabled_on": { "groups": ["footer"] }
+}
+{% endschema %}

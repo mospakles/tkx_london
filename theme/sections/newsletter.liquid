@@ -1,0 +1,60 @@
+{%- comment -%}
+  Launch list sign-up. Uses Shopify's native customer form: the email is saved
+  as a customer with email-marketing consent and the tag "launch-list".
+  Success is only shown when Shopify confirms the submission.
+{%- endcomment -%}
+<section class="section color-scheme-dark" id="launch-list" aria-labelledby="NL-{{ section.id }}">
+  <div class="page-width newsletter">
+    <div class="stack-16">
+      <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+      <h2 class="h1" id="NL-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}<p class="lede muted">{{ section.settings.text | escape }}</p>{%- endif -%}
+    </div>
+    <div>
+      {%- form 'customer', id: 'NewsletterForm', class: 'newsletter__form' -%}
+        <input type="hidden" name="contact[tags]" value="{{ section.settings.tag | default: 'launch-list' }}">
+        <input type="hidden" name="contact[accepts_marketing]" value="true">
+        {%- if form.posted_successfully? -%}
+          <p class="status-msg status-msg--success" role="status" tabindex="-1" autofocus>{{ section.settings.success | escape }}</p>
+        {%- else -%}
+          {%- if form.errors -%}
+            <p class="status-msg status-msg--error" role="alert" id="NL-error-{{ section.id }}">
+              {%- if form.errors.messages['email'] -%}Email {{ form.errors.messages['email'] }}{%- else -%}{{ form.errors | default_errors }}{%- endif -%}
+            </p>
+          {%- endif -%}
+          <div class="inline-form">
+            <label class="visually-hidden" for="NL-email-{{ section.id }}">Email address</label>
+            <input id="NL-email-{{ section.id }}" type="email" name="contact[email]" required autocomplete="email" placeholder="Email address"
+              {% if form.errors %}aria-invalid="true" aria-describedby="NL-error-{{ section.id }}"{% endif %}>
+            <button type="submit">Sign up</button>
+          </div>
+          {%- comment -%} Explicit opt-in: the browser blocks submission until ticked. {%- endcomment -%}
+          <label class="checkbox consent" style="margin-top:14px">
+            <input type="checkbox" required>
+            <span class="rte">{{ section.settings.consent }}</span>
+          </label>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Email sign-up",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small heading", "default": "Launch list" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Be first in motion" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Launch news, first access and future collections — straight to your inbox." },
+    { "type": "text", "id": "tag", "label": "Customer tag", "default": "launch-list" },
+    { "type": "text", "id": "success", "label": "Success message", "default": "Thank you — you're on the list." },
+    {
+      "type": "richtext",
+      "id": "consent",
+      "label": "Consent text",
+      "default": "<p>Yes, email me TKX London launch news and future collections. You can unsubscribe at any time using the link in every email. See our Privacy & Cookies policy for how we use your data.</p>"
+    }
+  ],
+  "presets": [{ "name": "Email sign-up" }]
+}
+{% endschema %}

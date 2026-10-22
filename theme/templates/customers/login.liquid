@@ -1,0 +1,23 @@
+<div class="page-width" style="max-width:520px;padding-block:64px">
+  <h1 class="h2">Log in</h1>
+  {%- form 'customer_login', class: 'mt-32' -%}
+    {%- if form.errors -%}<p class="status-msg status-msg--error" role="alert">{{ form.errors | default_errors }}</p>{%- endif -%}
+    <div class="field"><label for="LoginEmail">Email</label><input class="input" id="LoginEmail" type="email" name="customer[email]" autocomplete="email" required></div>
+    <div class="field"><label for="LoginPassword">Password</label><input class="input" id="LoginPassword" type="password" name="customer[password]" autocomplete="current-password" required></div>
+    <button class="btn btn--block">Log in</button>
+  {%- endform -%}
+  <p class="small mt-16"><a href="#recover" id="RecoverLink">Forgot your password?</a> · <a href="{{ routes.account_register_url }}">Create account</a></p>
+  <div id="recover" class="mt-32">
+    <h2 class="h3">Reset password</h2>
+    {%- form 'recover_customer_password', class: 'mt-16' -%}
+      {%- if form.posted_successfully? -%}<p class="status-msg status-msg--success" role="status">We've sent you an email with a link to reset your password.</p>{%- endif -%}
+      {%- if form.errors -%}<p class="status-msg status-msg--error" role="alert">{{ form.errors | default_errors }}</p>{%- endif -%}
+      <div class="field"><label for="RecoverEmail">Email</label><input class="input" id="RecoverEmail" type="email" name="email" autocomplete="email" required></div>
+      <button class="btn btn--secondary">Send reset link</button>
+    {%- endform -%}
+  </div>
+  {%- if shop.checkout.guest_login -%}
+    <h2 class="h3 mt-32">Continue as guest</h2>
+    {%- form 'guest_login', class: 'mt-16' -%}<button class="btn btn--secondary">Continue as guest</button>{%- endform -%}
+  {%- endif -%}
+</div>

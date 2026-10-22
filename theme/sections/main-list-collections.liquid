@@ -1,0 +1,21 @@
+<div class="page-width">
+  <header class="page-hero"><h1 class="h1">Collections</h1></header>
+  <ul class="product-grid" role="list" style="padding-bottom: var(--space-section)">
+    {%- for collection in collections -%}
+      {%- if collection.products_count > 0 -%}
+        <li class="product-card">
+          <div class="media ratio-tall">
+            {%- if collection.featured_image -%}
+              {{ collection.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '400, 600, 800', sizes: '(min-width: 750px) 33vw, 50vw' }}
+            {%- else -%}{% render 'placeholder', type: 'collection-1' %}{%- endif -%}
+          </div>
+          <div class="product-card__info"><a class="product-card__title" href="{{ collection.url }}">{{ collection.title | escape }}</a></div>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+</div>
+
+{% schema %}
+{ "name": "Collections list" }
+{% endschema %}

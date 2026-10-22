@@ -1,0 +1,65 @@
+<section class="section" aria-labelledby="ED-{{ section.id }}">
+  <div class="page-width">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+        <h2 class="h1" id="ED-{{ section.id }}">{{ section.settings.heading | escape }}</h2>
+      </div>
+      {%- if section.settings.text != blank -%}<p class="lede muted">{{ section.settings.text | escape }}</p>{%- endif -%}
+    </div>
+    <div class="editorial">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign ratio = 'ratio-portrait'
+          if forloop.first
+            assign ratio = 'ratio-landscape'
+          endif
+        -%}
+        <figure class="editorial__item reveal" {{ block.shopify_attributes }}>
+          <div class="media {{ ratio }}">
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 1600 | image_tag: loading: 'lazy', widths: '500, 800, 1200, 1600', sizes: '(min-width: 990px) 50vw, 100vw' }}
+            {%- else -%}
+              {% render 'placeholder', type: 'lifestyle-2', label: block.settings.caption %}
+            {%- endif -%}
+          </div>
+          {%- if block.settings.caption != blank -%}<figcaption>{{ block.settings.caption | escape }}</figcaption>{%- endif -%}
+        </figure>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lifestyle editorial",
+  "max_blocks": 5,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small heading", "default": "In motion" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Everyday, Everywhere" },
+    { "type": "text", "id": "text", "label": "Intro" }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "caption", "label": "Caption" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Lifestyle editorial",
+      "blocks": [
+        { "type": "image", "settings": { "caption": "Weekend plans" } },
+        { "type": "image", "settings": { "caption": "Travel days" } },
+        { "type": "image", "settings": { "caption": "Relaxed work" } },
+        { "type": "image", "settings": { "caption": "Movement" } },
+        { "type": "image", "settings": { "caption": "Evenings out" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

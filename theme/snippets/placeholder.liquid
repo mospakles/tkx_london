@@ -1,0 +1,11 @@
+{%- comment -%}
+  Development placeholder shown when no approved image has been chosen.
+  Usage: {% render 'placeholder', type: 'lifestyle-1', label: 'Campaign image — full-length' %}
+{%- endcomment -%}
+<div class="placeholder" role="img" aria-label="{{ label | default: 'Image placeholder' | escape }}">
+  {{ type | default: 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+  {%- if request.design_mode and label != blank -%}
+    <span class="placeholder__tag">Awaiting approved image</span>
+    <span class="placeholder__label">{{ label }}</span>
+  {%- endif -%}
+</div>

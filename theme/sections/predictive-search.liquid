@@ -1,0 +1,34 @@
+{%- comment -%} Rendered via /search/suggest?section_id=predictive-search {%- endcomment -%}
+{%- if predictive_search.performed -%}
+  {%- assign products = predictive_search.resources.products -%}
+  {%- assign pages = predictive_search.resources.pages -%}
+  <div class="predictive-search__inner" data-predictive-count="{{ products.size | plus: pages.size }}">
+    {%- if products.size > 0 -%}
+      <p class="eyebrow mt-16">Products</p>
+      <ul class="predictive-list" role="listbox" aria-label="Products">
+        {%- for product in products limit: 6 -%}
+          <li role="option" aria-selected="false" id="pred-p-{{ forloop.index }}">
+            <a href="{{ product.url }}" class="predictive-item">
+              <span class="media ratio-tall" style="width:56px">
+                {%- if product.featured_media -%}{{ product.featured_media | image_url: width: 120 | image_tag: loading: 'lazy', alt: '' }}{%- endif -%}
+              </span>
+              <span><strong>{{ product.title | escape }}</strong><br><span class="small">{{ product.price | money }}</span></span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    {%- if pages.size > 0 -%}
+      <p class="eyebrow mt-16">Pages</p>
+      <ul class="predictive-list" role="listbox" aria-label="Pages">
+        {%- for page in pages limit: 4 -%}
+          <li role="option" aria-selected="false"><a href="{{ page.url }}" class="predictive-item">{{ page.title | escape }}</a></li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+    {%- if products.size == 0 and pages.size == 0 -%}
+      <p class="small muted mt-16">No results for “{{ predictive_search.terms | escape }}”.</p>
+    {%- endif -%}
+    <p class="mt-16"><a class="link-arrow" href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}&options%5Bprefix%5D=last">See all results</a></p>
+  </div>
+{%- endif -%}

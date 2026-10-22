@@ -1,0 +1,18 @@
+<div class="page-width" style="padding-block:64px">
+  <h1 class="h2">Account</h1>
+  <p class="mt-16">{{ customer.first_name }} {{ customer.last_name }} · {{ customer.email }} · <a href="{{ routes.account_logout_url }}">Log out</a></p>
+  <h2 class="h3 mt-32">Orders</h2>
+  {%- paginate customer.orders by 20 -%}
+    {%- if customer.orders.size > 0 -%}
+      <div class="table-scroll mt-16"><table class="spec-table">
+        <thead><tr><th scope="col">Order</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Total</th></tr></thead>
+        <tbody>
+          {%- for order in customer.orders -%}
+            <tr><th scope="row"><a href="{{ order.customer_url }}">{{ order.name }}</a></th><td>{{ order.created_at | date: '%d %b %Y' }}</td><td>{{ order.fulfillment_status_label }}</td><td>{{ order.total_price | money_with_currency }}</td></tr>
+          {%- endfor -%}
+        </tbody>
+      </table></div>
+    {%- else -%}<p class="muted mt-16">You haven't placed any orders yet.</p>{%- endif -%}
+  {%- endpaginate -%}
+  <p class="mt-32"><a href="{{ routes.account_addresses_url }}">Manage addresses ({{ customer.addresses_count }})</a></p>
+</div>

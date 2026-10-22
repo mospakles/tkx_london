@@ -1,0 +1,29 @@
+<cart-drawer class="drawer drawer--right" id="CartDrawer" role="dialog" aria-modal="true" aria-labelledby="CartDrawerTitle" tabindex="-1" hidden>
+  <div class="drawer__head">
+    <h2 id="CartDrawerTitle">Bag ({{ cart.item_count }})</h2>
+    <button type="button" class="icon-btn" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close bag</span></button>
+  </div>
+  {%- if cart.item_count > 0 -%}
+    <form action="{{ routes.cart_url }}" method="post" id="CartForm" class="drawer__body" novalidate>
+      {%- for item in cart.items -%}
+        {% render 'cart-line', item: item, index: forloop.index %}
+      {%- endfor -%}
+      <div class="status-msg status-msg--error" data-cart-error role="alert" hidden></div>
+    </form>
+    <div class="drawer__foot">
+      {% render 'cart-summary', show_express: false %}
+      <p class="text-center mt-16"><a class="small" href="{{ routes.cart_url }}">View bag</a></p>
+    </div>
+  {%- else -%}
+    <div class="drawer__body empty-state">
+      <p>Your bag is empty.</p>
+      {% render 'primary-cta', class: 'btn' %}
+    </div>
+  {%- endif -%}
+</cart-drawer>
+
+{% schema %}
+{
+  "name": "Bag drawer"
+}
+{% endschema %}

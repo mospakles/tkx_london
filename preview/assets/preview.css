@@ -1,0 +1,55 @@
+/* Preview-only styles. Everything brand-facing lives in theme/assets/base.css. */
+
+.preview-bar {
+  position: relative; z-index: 60;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  padding: 8px var(--gutter);
+  background: #fff6d6; color: #3d3100; border-bottom: 1px dashed #b39500;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.4;
+}
+.preview-bar strong { font-weight: 700; letter-spacing: .04em; }
+.preview-bar label { display: inline-flex; align-items: center; gap: 8px; }
+.preview-bar select {
+  font: inherit; min-height: 32px; padding: 2px 6px; border: 1px solid #b39500; background: #fffbea; border-radius: 2px;
+}
+.preview-bar a { color: inherit; }
+
+/* Tonal fixture artwork */
+.placeholder { background: var(--ph-bg, #e4ddd1); }
+.placeholder--dark { --ph-bg: #2c2a27; color: rgba(250,247,241,.7); }
+.placeholder--dark .placeholder__tag { background: rgba(17,17,16,.7); color: var(--c-paper); }
+.placeholder svg.figures { position: absolute; inset: 6% 4% 0; width: 92%; height: 94%; }
+.placeholder svg.detail { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.hero .placeholder { justify-content: flex-start; padding-top: 18px; }
+.hero .placeholder__label { color: rgba(250,247,241,.75); }
+
+.size-guide-table td.tbc { color: var(--c-stone); font-style: italic; }
+
+/* Checkout handoff explainer */
+.handoff-steps { counter-reset: s; display: grid; gap: 10px; margin: 16px 0; padding: 0; list-style: none; font-size: 14px; }
+.handoff-steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 8px; }
+.handoff-steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--c-black); color: var(--c-paper); display: grid; place-items: center; font-size: 12px; }
+
+.locale-list { display: grid; gap: 8px; margin: 18px 0; }
+.locale-list label { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border: 1px solid var(--c-line-strong); border-radius: var(--radius); cursor: pointer; font-size: 15px; }
+.locale-list input { accent-color: var(--c-black); width: 18px; height: 18px; }
+.locale-list label:has(input:checked) { border-color: var(--c-black); box-shadow: inset 0 0 0 1px var(--c-black); }
+.locale-list .code { margin-left: auto; color: var(--c-stone); font-variant-numeric: tabular-nums; }
+
+.locale-suggest {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px;
+  padding: 8px var(--gutter); background: var(--c-paper); border-bottom: 1px solid var(--c-line); font-size: 13.5px;
+}
+.locale-suggest button { min-height: 36px; }
+.locale-suggest .btn { min-height: 36px; padding: 6px 14px; font-size: 11.5px; }
+
+.search-results { display: grid; gap: 28px; margin-top: 24px; }
+@media (min-width: 750px) { .search-results { grid-template-columns: 2fr 1fr; } }
+.search-results__products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 10px; }
+@media (min-width: 750px) { .search-results__products { grid-template-columns: repeat(4, 1fr); } }
+.search-results h3 { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; color: var(--c-stone); }
+.search-results ul a { display: block; padding: 6px 0; }
+
+/* The preview keeps its desktop nav outside .header__left (the theme nests it inside), so hide the mobile-only cluster here only. */
+@media (min-width: 990px) { #header .header__left { display: none; } }

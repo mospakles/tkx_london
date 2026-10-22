@@ -1,0 +1,57 @@
+{%- comment -%}
+  Optional theme cookie banner using Shopify's Customer Privacy API.
+  Only shown when Shopify says consent is still needed for this visitor.
+{%- endcomment -%}
+<div class="cookie-banner" role="region" aria-label="Cookie preferences" data-cookie-banner hidden>
+  <p>{{ settings.cookie_banner_text | escape }} {%- if shop.privacy_policy %} <a href="{{ shop.privacy_policy.url }}">Privacy &amp; cookies</a>{% endif %}</p>
+  <div class="cookie-banner__actions">
+    <button type="button" class="btn btn--secondary" data-consent="decline">Essential only</button>
+    <button type="button" class="btn" data-consent="accept">Accept all</button>
+  </div>
+</div>
+<script>
+  (function () {
+    var banner = document.querySelector('[data-cookie-banner]');
+    var api = null;
+    function setOffset() {
+      document.documentElement.style.setProperty('--cookie-offset', banner.hidden ? '0px' : banner.offsetHeight + 'px');
+    }
+    // Loads Shopify's Customer Privacy API once; calls back with it (or null on failure).
+    var waiting = [];
+    function withApi(cb) {
+      if (api) return cb(api);
+      waiting.push(cb);
+      if (waiting.length > 1) return;
+      if (!window.Shopify || !Shopify.loadFeatures) { waiting.splice(0).forEach(function (f) { f(null); }); return; }
+      Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (error) {
+        api = error ? null : window.Shopify.customerPrivacy;
+        waiting.splice(0).forEach(function (f) { f(api); });
+      });
+    }
+    // Buttons work whenever the banner is visible, including when reopened from "Cookie settings".
+    banner.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-consent]');
+      if (!btn) return;
+      var yes = btn.dataset.consent === 'accept';
+      withApi(function (a) {
+        if (!a) { banner.hidden = true; setOffset(); return; }
+        a.setTrackingConsent({ analytics: yes, marketing: yes, preferences: yes, sale_of_data: yes }, function () {
+          banner.hidden = true;
+          setOffset();
+        });
+      });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+      withApi(function (a) {
+        if (a && a.shouldShowBanner()) { banner.hidden = false; setOffset(); }
+      });
+    });
+    document.addEventListener('tkx:open-cookie-settings', function () {
+      withApi(function (a) {
+        if (!a) return; // without the API the choice couldn't be saved, so don't show buttons that do nothing
+        banner.hidden = false;
+        setOffset();
+      });
+    });
+  })();
+</script>

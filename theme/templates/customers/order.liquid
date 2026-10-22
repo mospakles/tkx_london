@@ -1,0 +1,20 @@
+<div class="page-width" style="padding-block:64px">
+  <p><a href="{{ routes.account_url }}">← Account</a></p>
+  <h1 class="h2 mt-16">Order {{ order.name }}</h1>
+  <p class="muted">{{ order.created_at | date: '%d %B %Y' }} · {{ order.financial_status_label }} · {{ order.fulfillment_status_label }}</p>
+  <div class="table-scroll mt-32"><table class="spec-table">
+    <thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Total</th></tr></thead>
+    <tbody>
+      {%- for line in order.line_items -%}
+        <tr><th scope="row">{{ line.title }}{% if line.fulfillment %}<br><span class="xsmall">{{ line.fulfillment.tracking_company }} {{ line.fulfillment.tracking_number }}</span>{% endif %}</th><td>{{ line.quantity }}</td><td>{{ line.final_line_price | money }}</td></tr>
+      {%- endfor -%}
+    </tbody>
+    <tfoot>
+      <tr><th scope="row" colspan="2">Subtotal</th><td>{{ order.line_items_subtotal_price | money }}</td></tr>
+      {%- for shipping in order.shipping_methods -%}<tr><th scope="row" colspan="2">{{ shipping.title }}</th><td>{{ shipping.price | money }}</td></tr>{%- endfor -%}
+      {%- for tax in order.tax_lines -%}<tr><th scope="row" colspan="2">{{ tax.title }}</th><td>{{ tax.price | money }}</td></tr>{%- endfor -%}
+      <tr><th scope="row" colspan="2">Total</th><td>{{ order.total_price | money_with_currency }}</td></tr>
+    </tfoot>
+  </table></div>
+  {%- if order.shipping_address -%}<h2 class="h3 mt-32">Delivery address</h2><p class="mt-16">{{ order.shipping_address | format_address }}</p>{%- endif -%}
+</div>

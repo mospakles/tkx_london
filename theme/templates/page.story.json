@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "hero": { "type": "hero", "settings": { "heading": "EVERYDAY IN MOTION.", "subheading": "Considered comfort. Confident style." } },
+    "story": { "type": "story", "settings": { "scheme": "" } },
+    "main": { "type": "main-page", "settings": { "eyebrow": "Our Story", "menu": "" } },
+    "newsletter": { "type": "newsletter", "settings": {} }
+  },
+  "order": ["hero", "story", "main", "newsletter"]
+}

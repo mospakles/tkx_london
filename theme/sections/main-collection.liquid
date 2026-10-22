@@ -1,0 +1,182 @@
+{%- comment -%}
+  Collection page with Shopify storefront filtering. Filters (size, colour,
+  availability, price) are configured in the free Search & Discovery app.
+  Works without JavaScript: the form submits as a normal GET request.
+{%- endcomment -%}
+{%- capture filter_form -%}
+  {%- for filter in collection.filters -%}
+    <details class="facet" {% if filter.active_values.size > 0 or forloop.index <= 2 %}open{% endif %}>
+      <summary>{{ filter.label | escape }}{% if filter.active_values.size > 0 %} ({{ filter.active_values.size }}){% endif %}</summary>
+      {%- case filter.type -%}
+        {%- when 'price_range' -%}
+          <div class="facet__price">
+            <div class="field">
+              <label for="__PFX__min">From ({{ cart.currency.symbol }})</label>
+              <input class="input" id="__PFX__min" type="number" inputmode="decimal" step="any" name="{{ filter.min_value.param_name }}" min="0"
+                max="{{ filter.range_max | money_without_currency | remove: ',' }}"
+                value="{% if filter.min_value.value %}{{ filter.min_value.value | money_without_currency | remove: ',' }}{% endif %}"
+                placeholder="0">
+            </div>
+            <div class="field">
+              <label for="__PFX__max">To ({{ cart.currency.symbol }})</label>
+              <input class="input" id="__PFX__max" type="number" inputmode="decimal" step="any" name="{{ filter.max_value.param_name }}" min="0"
+                max="{{ filter.range_max | money_without_currency | remove: ',' }}"
+                value="{% if filter.max_value.value %}{{ filter.max_value.value | money_without_currency | remove: ',' }}{% endif %}"
+                placeholder="{{ filter.range_max | money_without_currency | remove: ',' }}">
+            </div>
+          </div>
+        {%- else -%}
+          <fieldset class="facet__list" style="border:0;margin:0;padding:0 0 16px">
+            <legend class="visually-hidden">{{ filter.label | escape }}</legend>
+            {%- for value in filter.values -%}
+              <label>
+                <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"
+                  {% if value.active %}checked{% endif %} {% if value.count == 0 and value.active == false %}disabled{% endif %}>
+                {%- if value.swatch.color -%}<span class="swatch" style="--swatch: {{ value.swatch.color }}"></span>{%- endif -%}
+                <span>{{ value.label | escape }}</span>
+                <span class="count">{{ value.count }}</span>
+              </label>
+            {%- endfor -%}
+          </fieldset>
+      {%- endcase -%}
+    </details>
+  {%- endfor -%}
+  <input type="hidden" name="sort_by" value="{{ collection.sort_by | default: collection.default_sort_by }}">
+{%- endcapture -%}
+
+<div class="page-width">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ routes.root_url }}">Home</a> / <span aria-current="page">{{ collection.title | escape }}</span></nav>
+  <header class="collection-hero">
+    <h1 class="h1">{{ collection.title | escape }}</h1>
+    {%- if collection.description != blank -%}<div class="lede muted rte">{{ collection.description }}</div>{%- endif -%}
+  </header>
+
+  {%- paginate collection.products by section.settings.per_page -%}
+    <facet-filters data-section="{{ section.id }}">
+      <div class="collection-toolbar">
+        {%- if collection.filters.size > 0 -%}
+          <button type="button" class="chip chip--plain hide-desktop" aria-controls="FilterDrawer" aria-expanded="false" data-drawer-open="FilterDrawer">
+            {% render 'icon', name: 'filter' %} Filter
+          </button>
+        {%- endif -%}
+        <p class="small muted" role="status">{{ collection.products_count }} {{ collection.products_count | pluralize: 'product', 'products' }}</p>
+        <form class="sort-form" data-filter-form>
+          {%- for filter in collection.filters -%}
+            {%- for value in filter.active_values -%}<input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">{%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value -%}<input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | remove: ',' }}">{%- endif -%}
+              {%- if filter.max_value.value -%}<input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | remove: ',' }}">{%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <label class="visually-hidden" for="SortBy">Sort by</label>
+          <select id="SortBy" name="sort_by" class="select" data-autosubmit>
+            {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>
+            {%- endfor -%}
+          </select>
+          <noscript><button type="submit" class="btn btn--secondary">Sort</button></noscript>
+        </form>
+      </div>
+
+      <div class="collection-layout">
+        {%- if collection.filters.size > 0 -%}
+          <aside class="facets" aria-label="Filters">
+            <form data-filter-form>
+              {{ filter_form | replace: '__PFX__', 'Desk-' }}
+              {%- comment -%} Visible so Enter in the price fields submits; checkboxes apply instantly. {%- endcomment -%}
+              <button type="submit" class="btn btn--secondary btn--block mt-16">Apply filters</button>
+            </form>
+          </aside>
+        {%- endif -%}
+
+        <div>
+          {%- liquid
+            assign active_count = 0
+            for filter in collection.filters
+              assign active_count = active_count | plus: filter.active_values.size
+              if filter.type == 'price_range'
+                if filter.min_value.value or filter.max_value.value
+                  assign active_count = active_count | plus: 1
+                endif
+              endif
+            endfor
+          -%}
+          {%- if active_count > 0 -%}
+            <div class="active-filters" aria-label="Active filters">
+              {%- for filter in collection.filters -%}
+                {%- for value in filter.active_values -%}
+                  <a class="chip" href="{{ value.url_to_remove }}">{{ filter.label | escape }}: {{ value.label | escape }}<span class="visually-hidden"> — remove</span></a>
+                {%- endfor -%}
+                {%- if filter.type == 'price_range' -%}
+                  {%- if filter.min_value.value or filter.max_value.value -%}
+                    <a class="chip" href="{{ filter.url_to_remove }}">Price<span class="visually-hidden"> — remove</span></a>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+              <a class="chip chip--plain" href="{{ collection.url }}?sort_by={{ collection.sort_by }}"><u>Reset all filters</u></a>
+            </div>
+          {%- endif -%}
+
+          {%- if collection.products.size == 0 -%}
+            <div class="empty-state">
+              {%- if active_count > 0 -%}
+                <h2 class="h3">No matches</h2>
+                <p>No products match these filters. Try removing one, or reset them all.</p>
+                <a class="btn" href="{{ collection.url }}">Reset filters</a>
+              {%- else -%}
+                <h2 class="h3">Coming soon</h2>
+                <p>There's nothing in this collection yet. Join the launch list to hear when it arrives.</p>
+                <a class="btn" href="{{ routes.root_url }}#launch-list">Join the Launch List</a>
+              {%- endif -%}
+            </div>
+          {%- else -%}
+            <ul class="product-grid" role="list" id="ProductGrid">
+              {%- for product in collection.products -%}
+                {%- liquid
+                  assign lazy = false
+                  if forloop.index > 6
+                    assign lazy = true
+                  endif
+                -%}
+                <li>{% render 'product-card', product: product, lazy: lazy %}</li>
+              {%- endfor -%}
+            </ul>
+            {%- if paginate.pages > 1 -%}
+              <nav class="pagination mt-32" aria-label="Pagination">
+                {%- if paginate.previous -%}<a class="btn btn--secondary" href="{{ paginate.previous.url }}">Previous</a>{%- endif -%}
+                <span class="small">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+                {%- if paginate.next -%}<a class="btn btn--secondary" href="{{ paginate.next.url }}">Next</a>{%- endif -%}
+              </nav>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if collection.filters.size > 0 -%}
+        <div class="drawer drawer--left" id="FilterDrawer" role="dialog" aria-modal="true" aria-label="Filters" tabindex="-1" hidden>
+          <div class="drawer__head">
+            <h2>Filter</h2>
+            <button type="button" class="icon-btn" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close filters</span></button>
+          </div>
+          <form class="drawer__body" id="MobileFilterForm">
+            {{ filter_form | replace: '__PFX__', 'Mob-' }}
+          </form>
+          <div class="drawer__foot" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <a class="btn btn--secondary" href="{{ collection.url }}">Reset</a>
+            <button type="submit" form="MobileFilterForm" class="btn">Show results</button>
+          </div>
+        </div>
+      {%- endif -%}
+    </facet-filters>
+  {%- endpaginate -%}
+</div>
+
+{% schema %}
+{
+  "name": "Collection",
+  "settings": [
+    { "type": "range", "id": "per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 }
+  ]
+}
+{% endschema %}

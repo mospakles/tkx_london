@@ -1,0 +1,107 @@
+{%- comment -%}
+  One garment inside a look or a matching set: its own size choice, price and
+  stock. Stock always comes from the garment's own variants.
+  Usage: {% render 'component-picker', product: p, colour: 'Black', uid: 'look1-1', optional: true %}
+  - colour: optional colour value to fix this garment to (matches any option value)
+  - optional: shows an "Include" checkbox (Shop the Look)
+  When no colour is fixed and the garment has several colours, each choice is
+  labelled with the full variant title ("Black / M") so the colour is never hidden.
+{%- endcomment -%}
+{%- liquid
+  assign wanted = colour | downcase | strip
+  assign size_index = nil
+  for option in product.options
+    assign o = option | downcase
+    if o == 'size'
+      assign size_index = forloop.index0
+    endif
+  endfor
+  assign use_full_title = false
+  if wanted == blank and product.options.size > 1
+    assign use_full_title = true
+  endif
+
+  assign match_count = 0
+  assign min_price = 999999999999
+  for variant in product.variants
+    assign matches = true
+    if wanted != blank
+      assign matches = false
+      for value in variant.options
+        assign v = value | downcase | strip
+        if v == wanted
+          assign matches = true
+        endif
+      endfor
+    endif
+    if matches
+      assign match_count = match_count | plus: 1
+      if variant.price < min_price
+        assign min_price = variant.price
+      endif
+    endif
+  endfor
+-%}
+<component-picker class="look-item" data-uid="{{ uid }}"{% if match_count == 0 %} data-no-match{% endif %}>
+  <a href="{{ product.url }}" class="media ratio-tall" tabindex="-1" aria-hidden="true">
+    {%- if product.featured_media -%}
+      {{ product.featured_media | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 240', sizes: '96px', alt: '' }}
+    {%- else -%}
+      {% render 'placeholder', type: 'product-apparel-2' %}
+    {%- endif -%}
+  </a>
+  <div>
+    <div class="look-item__head">
+      <div>
+        <a class="look-item__name" href="{{ product.url }}">{{ product.title | escape }}</a>
+        {%- if colour != blank -%}<div class="xsmall muted">{{ colour | escape }}</div>{%- endif -%}
+      </div>
+      <span class="price" data-item-price>{% if match_count > 0 %}{{ min_price | money }}{% else %}{{ product.price | money }}{% endif %}</span>
+    </div>
+    {%- if match_count == 0 -%}
+      <p class="xsmall" data-selected-size>Not available in this colour</p>
+      {% render 'owner-review', note: "No variant of this product matches the colour set for this look or set. Check the spelling against the product's Color option." %}
+    {%- else -%}
+      <fieldset class="option-group" style="margin-bottom: 0">
+        <legend>
+          <span>{% if use_full_title %}Colour and size{% else %}Size{% endif %}<span class="visually-hidden"> for {{ product.title | escape }}</span></span>
+          <span class="selected-value" data-selected-size>Choose a size</span>
+        </legend>
+        <div class="option-row">
+          {%- for variant in product.variants -%}
+            {%- liquid
+              assign matches = true
+              if wanted != blank
+                assign matches = false
+                for value in variant.options
+                  assign v = value | downcase | strip
+                  if v == wanted
+                    assign matches = true
+                  endif
+                endfor
+              endif
+              if use_full_title or size_index == nil
+                assign label = variant.title
+              else
+                assign label = variant.options[size_index]
+              endif
+            -%}
+            {%- if matches -%}
+              <input type="radio" id="{{ uid }}-{{ variant.id }}" name="{{ uid }}-size" value="{{ variant.id }}"
+                data-price="{{ variant.price }}" data-label="{{ label | escape }}" data-available="{{ variant.available }}"
+                {% unless variant.available %}disabled{% endunless %}>
+              <label class="size-btn{% unless variant.available %} is-unavailable{% endunless %}" for="{{ uid }}-{{ variant.id }}">
+                {{ label | escape }}{% unless variant.available %}<span class="visually-hidden"> — sold out</span>{% endunless %}
+              </label>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    {%- endif -%}
+    {%- if optional -%}
+      <label class="checkbox look-item__include">
+        <input type="checkbox" data-include checked> Include in bag
+      </label>
+    {%- endif -%}
+  </div>
+</component-picker>

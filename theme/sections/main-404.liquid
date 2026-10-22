@@ -1,0 +1,17 @@
+<div class="page-width empty-state" style="padding: 120px 0">
+  <p class="eyebrow">404</p>
+  <h1 class="h1">Out of step</h1>
+  <p>We couldn't find that page. It may have moved, or the link may be wrong.</p>
+  <form action="{{ routes.search_url }}" method="get" role="search" style="width:min(420px,100%)">
+    <div class="search-field">
+      <label class="visually-hidden" for="NotFoundSearch">Search the shop</label>
+      <input id="NotFoundSearch" type="search" name="q" placeholder="Search">
+      <button type="submit" class="icon-btn">{% render 'icon', name: 'search' %}<span class="visually-hidden">Search</span></button>
+    </div>
+  </form>
+  <a class="btn" href="{{ routes.root_url }}">Back to home</a>
+</div>
+
+{% schema %}
+{ "name": "404" }
+{% endschema %}

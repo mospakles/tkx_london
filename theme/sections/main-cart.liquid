@@ -1,0 +1,42 @@
+{%- comment -%}
+  Bag page. Works without JavaScript: quantities post to /cart, remove uses
+  Shopify's remove URL, and checkout hands off to Shopify's hosted checkout.
+{%- endcomment -%}
+<div class="page-width">
+  <header class="page-hero"><h1 class="h1">Your Bag</h1></header>
+  {%- if cart.item_count > 0 -%}
+    <cart-items class="cart-page" data-section="{{ section.id }}">
+      <form action="{{ routes.cart_url }}" method="post" id="CartForm" novalidate>
+        {%- for item in cart.items -%}
+          {% render 'cart-line', item: item, index: forloop.index %}
+        {%- endfor -%}
+        <noscript><button type="submit" name="update" class="btn btn--secondary mt-16">Update bag</button></noscript>
+        {%- if section.settings.show_note -%}
+          <div class="field mt-32">
+            <label for="CartNote">Order note</label>
+            <textarea id="CartNote" class="textarea" name="note">{{ cart.note }}</textarea>
+          </div>
+        {%- endif -%}
+        <div class="status-msg status-msg--error" data-cart-error role="alert" hidden></div>
+      </form>
+      <aside class="cart-summary" aria-label="Order summary">
+        {% render 'cart-summary', show_express: true %}
+      </aside>
+    </cart-items>
+  {%- else -%}
+    <div class="empty-state">
+      <h2 class="h3">Your bag is empty</h2>
+      <p>Find something for the everyday.</p>
+      {% render 'primary-cta', class: 'btn' %}
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Bag",
+  "settings": [
+    { "type": "checkbox", "id": "show_note", "label": "Show order note", "default": false }
+  ]
+}
+{% endschema %}

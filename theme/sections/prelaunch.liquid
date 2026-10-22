@@ -1,0 +1,114 @@
+{%- comment -%}
+  Pre-launch page, shown when Online Store → Preferences → Password protection
+  is on. Turning password protection off is the owner's launch switch; nothing
+  here launches automatically.
+{%- endcomment -%}
+<div class="prelaunch">
+  <header class="prelaunch__header">
+    {%- if settings.logo != blank -%}
+      {{ settings.logo | image_url: width: 520 | image_tag: style: 'width: 150px; height: auto; filter: invert(1)', alt: shop.name }}
+    {%- else -%}
+      <span class="wordmark">TKX<span>London</span></span>
+    {%- endif -%}
+    <button type="button" class="link-arrow" style="background:none;border:0;color:inherit" aria-controls="PasswordModal" aria-expanded="false" data-drawer-open="PasswordModal">Store login</button>
+  </header>
+
+  <div class="prelaunch__main">
+    <div class="prelaunch__media">
+      {%- if section.settings.video != blank -%}
+        <hero-video>
+          {{ section.settings.video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata' }}
+          <button type="button" class="icon-btn hero__video-toggle" data-video-toggle aria-pressed="false">
+            <span data-icon-pause>{% render 'icon', name: 'pause' %}</span>
+            <span data-icon-play hidden>{% render 'icon', name: 'play' %}</span>
+            <span class="visually-hidden">Pause background video</span>
+          </button>
+        </hero-video>
+      {%- elsif section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 1800 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '750, 1100, 1500, 1800', sizes: '(min-width: 990px) 55vw, 100vw' }}
+      {%- else -%}
+        {% render 'placeholder', type: 'lifestyle-1', label: 'Campaign preview image' %}
+      {%- endif -%}
+    </div>
+
+    <div class="prelaunch__body">
+      <p class="prelaunch__date">{{ settings.launch_date_text | escape }}</p>
+      <h1 class="h-display" style="font-size: clamp(44px, 7vw, 104px)">{{ section.settings.heading | escape }}</h1>
+      <p class="lede">{{ section.settings.subheading | escape }}</p>
+      {%- if section.settings.intro != blank -%}<div class="rte muted">{{ section.settings.intro }}</div>{%- endif -%}
+
+      <div id="launch-list">
+        {%- form 'customer', id: 'PrelaunchForm' -%}
+          <input type="hidden" name="contact[tags]" value="launch-list,prelaunch">
+          <input type="hidden" name="contact[accepts_marketing]" value="true">
+          {%- if form.posted_successfully? -%}
+            <p class="status-msg status-msg--success" role="status" tabindex="-1" autofocus>{{ section.settings.success | escape }}</p>
+          {%- else -%}
+            {%- if form.errors -%}
+              <p class="status-msg status-msg--error" role="alert" id="PrelaunchError">{{ form.errors | default_errors }}</p>
+            {%- endif -%}
+            <div class="inline-form">
+              <label class="visually-hidden" for="PrelaunchEmail">Email address</label>
+              <input id="PrelaunchEmail" type="email" name="contact[email]" required autocomplete="email" placeholder="Email address"
+                {% if form.errors %}aria-invalid="true" aria-describedby="PrelaunchError"{% endif %}>
+              <button type="submit">{{ settings.prelaunch_cta_label | default: 'Join the Launch List' | escape }}</button>
+            </div>
+            {%- comment -%} Explicit opt-in: the browser blocks submission until ticked. {%- endcomment -%}
+            <label class="checkbox xsmall mt-16" style="opacity:.9">
+              <input type="checkbox" required>
+              <span class="rte">{{ section.settings.consent }}</span>
+            </label>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+      {% render 'social-links' %}
+    </div>
+  </div>
+
+  <footer class="prelaunch__footer">
+    <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+    <span>{{ powered_by_link }}</span>
+  </footer>
+</div>
+
+<div class="modal" id="PasswordModal" role="dialog" aria-modal="true" aria-labelledby="PasswordTitle" tabindex="-1" hidden>
+  <button type="button" class="icon-btn modal__close" data-drawer-close>{% render 'icon', name: 'close' %}<span class="visually-hidden">Close</span></button>
+  <h2 class="h3" id="PasswordTitle">Enter store password</h2>
+  {%- form 'storefront_password', class: 'mt-16' -%}
+    {%- if form.errors -%}
+      <p class="status-msg status-msg--error" role="alert">{{ form.errors | default_errors }}</p>
+      <script>document.addEventListener('DOMContentLoaded', function () { document.querySelector('[aria-controls="PasswordModal"]').click(); });</script>
+    {%- endif -%}
+    <div class="field">
+      <label for="StorePassword">Password</label>
+      <input class="input" id="StorePassword" type="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn btn--block">Enter</button>
+  {%- endform -%}
+  <p class="xsmall muted mt-16">Store owner? <a href="/admin">Log in here</a>.</p>
+</div>
+
+{% schema %}
+{
+  "name": "Pre-launch",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Campaign preview image" },
+    { "type": "video", "id": "video", "label": "Campaign video (optional)" },
+    { "type": "text", "id": "heading", "label": "Headline", "default": "EVERYDAY IN MOTION." },
+    { "type": "text", "id": "subheading", "label": "Supporting line", "default": "Considered comfort. Confident style." },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Short introduction",
+      "default": "<p>TKX London is everyday womenswear that moves with you — elegant comfort with a sporty, streetwear edge. Our first collection is on its way.</p>"
+    },
+    { "type": "text", "id": "success", "label": "Success message", "default": "Thank you — you're on the launch list." },
+    {
+      "type": "richtext",
+      "id": "consent",
+      "label": "Consent text",
+      "default": "<p>Yes, email me TKX London launch news and future collections. Unsubscribe at any time via the link in every email.</p>"
+    }
+  ]
+}
+{% endschema %}

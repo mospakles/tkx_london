@@ -1,0 +1,35 @@
+{%- comment -%}
+  Standard content page (policies, delivery, FAQs, size guide, story).
+  Text marked [OWNER REVIEW] in page content is highlighted for the owner.
+{%- endcomment -%}
+<div class="page-width">
+  <header class="page-hero">
+    {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>{%- endif -%}
+    <h1 class="h1 mt-16">{{ page.title | escape }}</h1>
+  </header>
+  <div class="page-layout">
+    {%- assign help = linklists[section.settings.menu] -%}
+    {%- if help.links.size > 0 -%}
+      <nav class="page-nav" aria-label="Help pages">
+        {%- for link in help.links -%}
+          <a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+        {%- endfor -%}
+      </nav>
+    {%- else -%}
+      <div></div>
+    {%- endif -%}
+    <div class="rte">
+      {{ page.content | replace: '[OWNER REVIEW', '<mark class="owner-review">[OWNER REVIEW' }}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Page",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Small heading" },
+    { "type": "link_list", "id": "menu", "label": "Side menu", "default": "footer" }
+  ]
+}
+{% endschema %}

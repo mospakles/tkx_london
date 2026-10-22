@@ -1,0 +1,33 @@
+{%- comment -%}
+  Uses the hand-picked tkx.complete_the_look products when set; otherwise asks
+  Shopify for complementary recommendations (Search & Discovery app).
+{%- endcomment -%}
+{%- assign picks = product.metafields.tkx.complete_the_look.value -%}
+{%- if picks.size > 0 or recommendations.performed -%}
+  {%- if picks.size > 0 or recommendations.products_count > 0 -%}
+    <section class="section section--flush-top" aria-labelledby="CTL-{{ section.id }}">
+      <div class="page-width">
+        <div class="section__head"><h2 class="h2" id="CTL-{{ section.id }}">{{ section.settings.heading | escape }}</h2></div>
+        <ul class="product-grid product-grid--4" role="list">
+          {%- if picks.size > 0 -%}
+            {%- for p in picks limit: 4 -%}<li>{% render 'product-card', product: p, lazy: true %}</li>{%- endfor -%}
+          {%- else -%}
+            {%- for p in recommendations.products limit: 4 -%}<li>{% render 'product-card', product: p, lazy: true %}</li>{%- endfor -%}
+          {%- endif -%}
+        </ul>
+      </div>
+    </section>
+  {%- endif -%}
+{%- else -%}
+  <product-recommendations data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit=4&intent=complementary"></product-recommendations>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Complete the look",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Complete the Look" }
+  ],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

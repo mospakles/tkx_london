@@ -1,0 +1,30 @@
+{%- comment -%}
+  Returns a CSS colour for a colour option value. Prefers Shopify's native
+  swatch (set in the product's Color option), then the brand palette.
+  Usage: {% render 'swatch-color', value: option_value %}
+{%- endcomment -%}
+{%- liquid
+  if value.swatch.color
+    echo value.swatch.color
+  else
+    assign name = value | append: '' | downcase | strip
+    case name
+      when 'black'
+        echo '#151514'
+      when 'chocolate', 'brown'
+        echo '#4a3226'
+      when 'olive', 'muted olive'
+        echo '#5f6146'
+      when 'taupe'
+        echo '#a89a89'
+      when 'charcoal'
+        echo '#3a3936'
+      when 'ivory', 'oat', 'cream'
+        echo '#ece5d8'
+      when 'white'
+        echo '#ffffff'
+      else
+        echo '#cfc8bd'
+    endcase
+  endif
+-%}

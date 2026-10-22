@@ -1,0 +1,26 @@
+{%- comment -%} Totals, currency note and hosted-checkout handoff. Usage: {% render 'cart-summary', show_express: true %} {%- endcomment -%}
+<div class="cart-totals">
+  {%- for discount in cart.cart_level_discount_applications -%}
+    <div class="cart-totals__row"><span>{{ discount.title | escape }}</span><span>−{{ discount.total_allocated_amount | money }}</span></div>
+  {%- endfor -%}
+  <div class="cart-totals__row cart-totals__row--total">
+    <span>Subtotal</span>
+    <span class="price" data-cart-total>{{ cart.total_price | money_with_currency }}</span>
+  </div>
+  <p class="xsmall muted">
+    {%- if cart.taxes_included -%}Tax included. {% endif -%}
+    Delivery and any duties for your country are shown at checkout before you pay.
+  </p>
+</div>
+<div class="currency-note rte">
+  <p>Shopping in {{ localization.country.name }} · {{ cart.currency.iso_code }} {{ cart.currency.symbol }}.</p>
+  {{ settings.currency_note }}
+</div>
+{%- if settings.store_mode == 'live' -%}
+  <button type="submit" name="checkout" form="CartForm" class="btn btn--block" {% if cart.item_count == 0 %}disabled{% endif %}>Checkout securely</button>
+  {%- if show_express and additional_checkout_buttons -%}
+    <div class="mt-16">{{ content_for_additional_checkout_buttons }}</div>
+  {%- endif -%}
+{%- else -%}
+  <p class="status-msg status-msg--info">Checkout opens at launch. {{ settings.launch_date_text | escape }}</p>
+{%- endif -%}

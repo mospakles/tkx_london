@@ -1,0 +1,49 @@
+{%- liquid
+  assign has_text = false
+  for block in section.blocks
+    if block.settings.text != blank
+      assign has_text = true
+    endif
+  endfor
+-%}
+{%- if has_text -%}
+  <div class="announcement" role="region" aria-label="Announcement">
+    {%- for block in section.blocks -%}
+      {%- if block.settings.text != blank -%}
+        <p {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
+          {%- else -%}
+            {{ block.settings.text | escape }}
+          {%- endif -%}
+        </p>
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "class": "section-announcement",
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "info": "Use confirmed launch information or an approved offer only. Leave blank to hide the bar."
+        },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Announcement bar", "blocks": [{ "type": "announcement" }] }],
+  "enabled_on": { "groups": ["header"] }
+}
+{% endschema %}
